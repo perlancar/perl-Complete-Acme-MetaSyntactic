@@ -14,19 +14,19 @@ our %SPEC;
 require Exporter;
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(
-                       complete_meta_categories
-                       complete_meta_themes
-                       complete_meta_themes_and_categories
+                       complete_meta_category
+                       complete_meta_theme
+                       complete_meta_theme_and_category
                );
 
-#TODO: complete_meta_names
+#TODO: complete_meta_name
 
 $SPEC{':package'} = {
     v => 1.1,
     summary => 'Completion routines for Acme::MetaSyntactic',
 };
 
-$SPEC{complete_meta_themes} = {
+$SPEC{complete_meta_theme} = {
     v => 1.1,
     summary => 'Complete from list of available themes',
     args => {
@@ -34,7 +34,7 @@ $SPEC{complete_meta_themes} = {
     },
     result_naked => 1,
 };
-sub complete_meta_themes {
+sub complete_meta_theme {
     require Complete::Util;
     require PERLANCAR::Module::List;
 
@@ -53,7 +53,7 @@ sub complete_meta_themes {
     );
 }
 
-$SPEC{complete_meta_categories} = {
+$SPEC{complete_meta_category} = {
     v => 1.1,
     summary => 'Complete from list of categories for a particular theme',
     args => {
@@ -62,13 +62,13 @@ $SPEC{complete_meta_categories} = {
             schema => ['str*', match => qr/\A\w+\z/],
             req => 1,
             completion => sub {
-                complete_meta_themes(@_);
+                complete_meta_theme(@_);
             },
         },
     },
     result_naked => 1,
 };
-sub complete_meta_categories {
+sub complete_meta_category {
     no strict 'refs';
     require Complete::Util;
 
@@ -85,12 +85,12 @@ sub complete_meta_categories {
     );
 }
 
-$SPEC{complete_meta_themes_and_categories} = {
+$SPEC{complete_meta_theme_and_category} = {
     v => 1.1,
     summary => 'Complete from list of available themes (or "theme/category")',
     description => <<'_',
 
-This routine can complete from a list of themes, like `complete_meta_themes()`.
+This routine can complete from a list of themes, like `complete_meta_theme()`.
 Additionally, if the word is in the form of "word/" or "word/rest" then the
 "rest" will be completed from list of categories of theme "word".
 
@@ -100,7 +100,7 @@ _
     },
     result_naked => 1,
 };
-sub complete_meta_themes_and_categories {
+sub complete_meta_theme_and_category {
     require Complete::Util;
     require PERLANCAR::Module::List;
 
@@ -108,10 +108,10 @@ sub complete_meta_themes_and_categories {
     my $word = $args{word};
 
     if ($word =~ /\A(\w*)\z/) {
-        return complete_meta_themes(word => $word);
+        return complete_meta_theme(word => $word);
     } elsif ($word =~ m!\A(\w+)/((?:/\w+)*\w*)\z!) {
         my ($theme, $cat) = ($1, $2);
-        my $themes = complete_meta_themes(word => $theme);
+        my $themes = complete_meta_theme(word => $theme);
         return [] unless @$themes == 1;
         my $pkg = "Acme::MetaSyntactic::$themes->[0]";
         (my $pkg_pm = "$pkg.pm") =~ s!::!/!g;
