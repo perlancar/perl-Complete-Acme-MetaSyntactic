@@ -8,7 +8,7 @@ use strict;
 use warnings;
 
 use Complete::Common qw(:all);
-use List::MoreUtils qw(uniq);
+use List::Util qw(uniq);
 
 our %SPEC;
 require Exporter;
